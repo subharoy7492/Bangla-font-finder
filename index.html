@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bengali Font Finder</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #preview { margin-top: 20px; font-size: 32px; border: 1px solid #ccc; padding: 10px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Bengali Font Finder</h1>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="uploadImage()">Find Font</button>
+  <p id="result">Matched Font: </p>
+  <div id="preview">অ আ ই ঈ</div>
+
+  <script>
+    function uploadImage() {
+      const file = document.getElementById('imageInput').files[0];
+      if (!file) return alert("Please select an image.");
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      fetch("/upload", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        const fontName = data.font_name;
+        document.getElementById("result").innerText = "Matched Font: " + fontName;
+
+        const fontUrl = `/fonts/${fontName}.ttf`;
+        const fontFace = new FontFace(fontName, `url(${fontUrl})`);
+        fontFace.load().then(loaded => {
+          document.fonts.add(loaded);
+          const preview = document.getElementById("preview");
+          preview.style.fontFamily = fontName;
+          preview.style.display = "block";
+        });
+      });
+    }
+  </script>
+</body>
+</html>
